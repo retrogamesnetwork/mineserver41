@@ -28,6 +28,7 @@ if [ "$updcheck" = "true" ]; then
   mkdir old
   mv java web old
   echo checking if file still works...
+  
 
   status_code=$(curl -L --write-out %{http_code} --silent --output /dev/null https://raw.githubusercontent.com/LAX1DUDE/eaglercraft/main/stable-download/stable-download.zip)
 
@@ -51,6 +52,9 @@ if [ "$updcheck" = "true" ]; then
       cp old/java old/web ./
   fi
 
+  echo duplicating favicon
+  cp favicon.png web
+
   #todo: detect modified files
   if [ -d "old/java/bukkit_command" -a -d "old/java/bungee_command" ]; then
       echo restoring servers from backup so you dont lose data...
@@ -64,6 +68,7 @@ if [ "$rplcheck" = "true" ]; then
   sed -i 's/host: 0\.0\.0\.0:[0-9]\+/host: 0.0.0.0:1/' java/bungee_command/config.yml
 fi
 
+
 echo starting bungeecord...
 cd java/bungee_command
 java -Xmx32M -Xms32M -jar bungee-dist.jar > /dev/null 2>&1 &
@@ -74,7 +79,11 @@ if [ "$rplcheck" = "true" ]; then
   sed -i 's/https:\/\/g\.eags\.us\/eaglercraft/https:\/\/gnome\.vercel\.app/' web/index.html
   sed -i 's/alert/console.log/' web/index.html
   echo setting default server...
-  sed -i 's/"CgAACQAHc2VydmVycwoAAAABCAACaXAAJHdzczovL2cuZWFncy51cy9lYWdsZXJjcmFmdC9jcmVhdGl2ZQgABG5hbWUAFGVhZ2xlcmNyYWZ0IGNyZWF0aXZlAQALaGlkZUFkZHJlc3MACAAKZm9yY2VkTU9URAAhdGhpcyBpcyBtZWFudCB0byBiZSBhIGRlbW8gc2VydmVyAAA="/btoa(atob("CgAACQAHc2VydmVycwoAAAABCAAKZm9yY2VkTU9URABtb3RkaGVyZQEAC2hpZGVBZGRyZXNzAQgAAmlwAGlwaGVyZQgABG5hbWUAbmFtZWhlcmUAAA==").replace("motdhere",String.fromCharCode("Your Minecraft Server".length)+"Your Minecraft Server").replace("namehere",String.fromCharCode("Minecraft Server".length)+"Minecraft Server").replace("iphere",String.fromCharCode(("ws"+location.protocol.slice(4)+"\/\/"+location.host+"\/server").length)+("ws"+location.protocol.slice(4)+"\/\/"+location.host+"\/server")))/' web/index.html
+  sed -i 's/"CgAACQAHc2VydmVycwoAAAABCAACaXAAIHdzKHMpOi8vIChhZGRyZXNzIGhlcmUpOihwb3J0KSAvCAAEbmFtZQAIdGVtcGxhdGUBAAtoaWRlQWRkcmVzcwEIAApmb3JjZWRNT1REABl0aGlzIGlzIG5vdCBhIHJlYWwgc2VydmVyAAA="/btoa(atob("CgAACQAHc2VydmVycwoAAAABCAAKZm9yY2VkTU9URABtb3RkaGVyZQEAC2hpZGVBZGRyZXNzAQgAAmlwAGlwaGVyZQgABG5hbWUAbmFtZWhlcmUAAA==").replace("motdhere",String.fromCharCode("The One and Only".length)+"The One and Only").replace("namehere",String.fromCharCode("SchoolCraft".length)+"SchoolCraft").replace("iphere",String.fromCharCode(("ws"+location.protocol.slice(4)+"\/\/"+location.host+"\/server").length)+("ws"+location.protocol.slice(4)+"\/\/"+location.host+"\/server")))/' web/index.html
+  echo changing style
+  sed -i 's/eagler/SchoolCraft/' web/index.html
+  echo displaying favicon
+  sed -i 's/meta property="og:description" content="Eaglercraft is real Minecraft 1.5.2 that you can play in any regular web browser. That includes school chromebooks, it works on all chromebooks. You can join real Minecraft 1.5.2 servers with it through a custom proxy based on Bungeecord." /link rel="icon" href="favicon.png"/' web/index.html
 fi
 
 echo starting nginx...
@@ -85,7 +94,7 @@ nginx -c ~/$REPL_SLUG/nginx.conf -g 'daemon off; pid /tmp/nginx/nginx.pid;' -p /
 
 echo starting bukkit...
 cd java/bukkit_command
-java -Xmx512M -Xms512M -jar craftbukkit-1.5.2-R1.0.jar
+java -Xmx800M -Xms800M -jar craftbukkit-1.5.2-R1.0.jar
 cd -
 
 echo killing bungeecord and nginx...
